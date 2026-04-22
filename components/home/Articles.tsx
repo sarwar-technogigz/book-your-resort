@@ -29,7 +29,7 @@ export default function Articles() {
     <section className="relative py-20 px-6 md:px-12 bg-[#f6f6f6] overflow-hidden">
       
       {/* 🔹 Background */}
-      <div className="absolute inset-0 opacity-[0.05] bg-[url('/images/map.png')] bg-cover bg-center pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.05] bg-cover bg-center pointer-events-none" />
 
       <motion.div
         variants={container}

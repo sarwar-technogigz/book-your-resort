@@ -11,16 +11,16 @@ import ResponsiveHeader from "./ResponsiveHeader";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/About-Us" },
-  { name: "Rooms", href: "/pages" },
+  { name: "Rooms", href: "/rooms" },
   { name: "Gallery", href: "/gallery" },
   { name: "Contact Us", href: "/contact-us" },
 ];
 
 const roomsDropdownItems = [
   { label: "All Rooms", href: "/rooms" },
-  { label: "Deluxe Room", href: "/rooms/deluxe" },
-  { label: "Premium Suite", href: "/rooms/premium-suite" },
-  { label: "Family Cottage", href: "/rooms/family-cottage" },
+  { label: "Luxury Pool Cottage", href: "/details/1" },
+  { label: "Premium Pool Cottage", href: "/details/2" },
+  { label: "Family Cottage", href: "/details/3" },
 ];
 
 // 🔥 Animation Variants
@@ -44,7 +44,7 @@ const item: Variants = {
 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const timeoutRef = useRef<any>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const textColor = scrolled ? "text-black" : "text-white";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -85,9 +85,10 @@ const Header = () => {
                 <Image
                   src="/logo/WildernestLogoPNG.png"
                   alt="Logo"
-                  width={150} // adjust size
-                  height={100}
-                  className="object-contain"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="w-[150px] h-auto object-contain"
                 />
               </Link>
             </motion.div>
@@ -105,7 +106,9 @@ const Header = () => {
                     className="relative"
                     onMouseEnter={() => {
                       if (isRooms) {
-                        clearTimeout(timeoutRef.current);
+                        if (timeoutRef.current) {
+                          clearTimeout(timeoutRef.current);
+                        }
                         setShowDropdown(true);
                       }
                     }}

@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import Form from "../form/Form";
 import InputField from "../form/input/InputField";
 import TextArea from "../form/input/TextArea";
 import { motion } from "framer-motion"; // ✅ added
 import { showError, showSuccess } from "../ui/alert/Alert";
+import { ContactEnquiryPayloadSchema } from "@/features/contact/schema";
+import { useCreateEnquiry } from "@/features/contact/useCreateEnquiry";
 
 type ContactFormValues = {
   fullName: string;
@@ -32,6 +34,7 @@ function isValidEmail(value: string) {
 function Contact() {
   const [values, setValues] = useState<ContactFormValues>(initialValues);
   const [touched, setTouched] = useState<ContactFormTouched>({});
+  const { isSubmitting, submitEnquiry } = useCreateEnquiry();
   const [status, setStatus] = useState<
     | { type: "idle" }
     | { type: "success"; message: string }
@@ -57,7 +60,7 @@ function Contact() {
   const markTouched = (key: keyof ContactFormValues) =>
     setTouched((prev) => ({ ...prev, [key]: true }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async (_event: FormEvent<HTMLFormElement>) => {
     setTouched({
       fullName: true,
       email: true,
@@ -75,17 +78,49 @@ function Contact() {
       });
       return;
     }
-    console.log("Contact Form Data:", values);
 
-    showSuccess("Message sent successfully!");
+    const payload = {
+      fullName: values.fullName.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      subject: values.subject.trim(),
+      message: values.message.trim(),
+      userId: null,
+    };
 
-    setStatus({
-      type: "success",
-      message:
-        "Thanks! Your message has been sent. We’ll get back to you soon.",
-    });
-    setValues(initialValues);
-    setTouched({});
+    const parsed = ContactEnquiryPayloadSchema.safeParse(payload);
+    if (!parsed.success) {
+      const firstError =
+        Object.values(parsed.error.flatten().fieldErrors).flat().filter(Boolean)[0] ||
+        "Please provide valid contact details.";
+      showError(firstError);
+      setStatus({
+        type: "error",
+        message: firstError,
+      });
+      return;
+    }
+
+    try {
+      const response = await submitEnquiry(parsed.data);
+      showSuccess(response.message || "Message sent successfully!");
+      setStatus({
+        type: "success",
+        message:
+          response.message ||
+          "Thanks! Your message has been sent. We will get back to you soon.",
+      });
+      setValues(initialValues);
+      setTouched({});
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to submit enquiry right now.";
+      showError(message);
+      setStatus({
+        type: "error",
+        message,
+      });
+    }
   };
 
   return (
@@ -255,6 +290,7 @@ function Contact() {
               {/* ✅ Button already animated (no change needed) */}
               <motion.button
                 type="submit"
+                disabled={isSubmitting}
                 onClick={() => {
                   markTouched("fullName");
                   markTouched("email");
@@ -267,7 +303,7 @@ function Contact() {
               >
                 <span className="absolute inset-0 bg-[#aa998a] translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out z-0" />
                 <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
-                  Send Message
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </span>
               </motion.button>
             </div>

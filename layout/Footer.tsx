@@ -78,9 +78,9 @@ export default function Footer() {
             {[
               { name: "Home", href: "/" },
               { name: "Our Rooms", href: "/rooms" },
-              { name: "About Us", href: "/about" },
-              { name: "Contact", href: "/contact" },
-              { name: "Policies & Important Pointers", href: "/policies" },
+              { name: "About Us", href: "/About-Us" },
+              { name: "Contact", href: "/contact-us" },
+              { name: "Gallery", href: "/gallery" },
             ].map((link, i) => (
               <motion.li
                 key={i}

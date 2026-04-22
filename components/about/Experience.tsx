@@ -41,12 +41,12 @@ const Experience = () => {
         {/* 🔹 LEFT SIDE IMAGES */}
         <motion.div variants={fadeUp} className="relative">
           {/* Map Shape */}
-          <img
+          {/* <img
             src="/images/map.png"
             className="absolute top-10 left-10 opacity-40 hidden md:block"
             alt=""
-          />
-
+          /> */}{" "}
+          map
           <div className="grid grid-cols-2 gap-4">
             {/* Left Column */}
             <div className="space-y-4">

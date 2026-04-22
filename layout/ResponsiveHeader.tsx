@@ -8,10 +8,10 @@ import Image from "next/image";
 
 const menuItems = [
   { name: "HOME", href: "/", hasSub: true },
-  { name: "FEATURES", href: "#", hasSub: true },
-  { name: "PAGES", href: "#", hasSub: true },
-  { name: "BLOGS", href: "#", hasSub: true },
-  { name: "CONTACT", href: "/contact", hasSub: false },
+  { name: "ABOUT", href: "/About-Us", hasSub: false },
+  { name: "ROOMS", href: "/rooms", hasSub: false },
+  { name: "GALLERY", href: "/gallery", hasSub: false },
+  { name: "CONTACT", href: "/contact-us", hasSub: false },
 ];
 
 // const socialIcons = [
@@ -112,6 +112,7 @@ function ResponsiveHeader({ isOpen, setIsOpen }: ResponsiveHeaderProps) {
                     >
                       <Link
                         href={item.href}
+                        onClick={() => setIsOpen(false)}
                         className="flex items-center justify-between px-6 py-5 group hover:bg-gray-50 transition-colors"
                       >
                         <span className="text-[15px] font-bold text-[#0F172A] tracking-wide">

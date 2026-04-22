@@ -5,7 +5,9 @@ import { motion } from "framer-motion";
 import Form from "@/components/form/Form";
 import InputField from "@/components/form/input/InputField";
 import TextArea from "@/components/form/input/TextArea";
-import { showSuccess } from "../ui/alert/Alert";
+import { showError, showSuccess } from "../ui/alert/Alert";
+import { useCreateBooking } from "@/features/booking/useCreateBooking";
+import { BookingPayloadSchema } from "@/features/booking/schema";
 
 type BookingFormProps = {
   roomType: string;
@@ -35,6 +37,7 @@ const initialFormState: BookingState = {
 
 export default function BookingForm({ roomType, isOpen, onClose }: BookingFormProps) {
   const [formData, setFormData] = useState<BookingState>(initialFormState);
+  const { isSubmitting, submitBooking } = useCreateBooking();
 
   if (!isOpen) return null;
 
@@ -44,13 +47,35 @@ export default function BookingForm({ roomType, isOpen, onClose }: BookingFormPr
     };
   };
 
- const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  console.log("Booking Data:", formData);
-  showSuccess("Booking Confirmed Successfully!");
-  setFormData(initialFormState);
-  onClose();
-};
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const payload = {
+      ...formData,
+      guests: Number(formData.guests),
+      children: Number(formData.children),
+      message: formData.message.trim(),
+    };
+
+    const parsed = BookingPayloadSchema.safeParse(payload);
+    if (!parsed.success) {
+      const firstError =
+        Object.values(parsed.error.flatten().fieldErrors).flat().filter(Boolean)[0] ||
+        "Please check your booking details.";
+      showError(firstError);
+      return;
+    }
+
+    try {
+      const response = await submitBooking(parsed.data);
+      showSuccess(response.message || "Booking confirmed successfully!");
+      setFormData(initialFormState);
+      onClose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Booking request failed.";
+      showError(message);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 px-4 py-8">
@@ -152,9 +177,10 @@ export default function BookingForm({ roomType, isOpen, onClose }: BookingFormPr
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="rounded-lg bg-[#ddb580] px-5 py-2 text-sm font-semibold text-black transition hover:bg-[#cfa46d]"
             >
-              Confirm Booking
+              {isSubmitting ? "Submitting..." : "Confirm Booking"}
             </button>
           </div>
         </Form>
